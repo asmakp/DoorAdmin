@@ -25,7 +25,7 @@ void loop()
 //     {
 //      Serial.print(input[i]);
 //     }
-     delay(1000); 
+  //   delay(1000); 
   char tempstr[25];
   strncpy(tempstr,input,25);
     if (tempstr[0] == 'R')
@@ -44,7 +44,7 @@ void loop()
 }
   void REMOTEACCESS()
   {
-    delay(500);
+   // delay(500);
     Serial.println("Green is on");
     digitalWrite(GreenPin,HIGH);
     delay(3000);
@@ -78,7 +78,7 @@ void loop()
 
 void FAKETEST()
 {
-  delay(1000);
+ // delay(1000);
   Serial.println("FAKE TEST");
   int testcard;
   char * token = strtok(input,",");
