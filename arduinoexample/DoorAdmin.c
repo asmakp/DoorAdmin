@@ -12,7 +12,7 @@ typedef struct
 {
 	char name[50];
 	bool access;
-	char DateTime[100];
+	time_t DateTime;
 } CARD;
 
 typedef struct
@@ -22,7 +22,7 @@ typedef struct
 	SERIALPORT port;
 }SYSTEM_STATE;
 
-void AddCard(SYSTEM_STATE* state)
+void AddCard(SYSTEM_STATE* state,char* CardNo)
 {
 	printf("NEW CARD ENTRY\n");
 	int indexForTheNewOne;
@@ -39,8 +39,9 @@ void AddCard(SYSTEM_STATE* state)
 		indexForTheNewOne = state->NumberOfCards;
 		state->NumberOfCards++;
 	}
-	GetInput("ENTER CARD NUMBER: ", state->cardlist[indexForTheNewOne].name,
-		sizeof(state->cardlist[indexForTheNewOne].name));
+	//GetInput("ENTER CARD NUMBER: ", state->cardlist[indexForTheNewOne].name,
+	//	sizeof(state->cardlist[indexForTheNewOne].name));
+	sprintf_s(state->cardlist[indexForTheNewOne].name, sizeof(state->cardlist[indexForTheNewOne].name), CardNo);
 	int Gaccess;
 	GetInputInt("Enter 1 For access.  0 For no access: ", &Gaccess);
 	if (Gaccess)
@@ -51,9 +52,8 @@ void AddCard(SYSTEM_STATE* state)
 	{
 		state->cardlist[indexForTheNewOne].access = false;
 	}
-	time_t now = time(NULL);
-	struct tm* now_t = localtime(&now);
-	strftime(state->cardlist[indexForTheNewOne].DateTime, 100, "%d-%m-%Y %H:%M:%S", now_t);
+	
+	state->cardlist[indexForTheNewOne].DateTime = time(NULL);
 	printf("Press key to continue");
 	getch(); //getch() method pauses the Output Console untill a key is pressed.
 }
@@ -99,7 +99,7 @@ void AddRemoveAccess(SYSTEM_STATE* state)
 	GetInput("Enter your card number:>", CardNo, 10);
 	if (state->NumberOfCards == 0)						// To check if the cardlist is empty
 	{
-		AddCard(state);				// If cardlist is empty create an account for the entered card number.
+		AddCard(state, CardNo);				// If cardlist is empty create an account for the entered card number.
 	}
 	else
 	{
@@ -140,7 +140,7 @@ void AddRemoveAccess(SYSTEM_STATE* state)
 
 			
 		}// if card not in list
-		AddCard(state);
+		AddCard(state,CardNo);
 
 
 	}
@@ -155,17 +155,23 @@ void ListOfCards(SYSTEM_STATE* state)
 	}
 	else
 	{
+		char str[50];
 		printf("\nLIST ALL CARDS\n");
 		for (int i = 0; i < state->NumberOfCards; i++)
 		{
 			CARD c = state->cardlist[i];
 			if (c.access == true)
 			{
-				printf("%s\tACCESS TO SYSTEM\t%s\n", c.name, c.DateTime);
+				struct tm* now_t = localtime(&(c.DateTime));
+				strftime(str, 50, "%d-%m-%Y %H:%M:%S", now_t);
+				printf("%s\tACCESS TO SYSTEM\t%s\n", c.name, str);
+
 			}
 			else
 			{
-				printf("%s\tNO ACCESS TO SYSTEM\t%s\n", c.name, c.DateTime);
+				struct tm* now_t = localtime(&(c.DateTime));
+				strftime(str, 50, "%d-%m-%Y %H:%M:%S", now_t);
+				printf("%s\tNO ACCESS TO SYSTEM\t%s\n", c.name, str);
 			}
 		}
 	}
@@ -270,10 +276,9 @@ void main()
 	state.cardlist = NULL;
 	state.NumberOfCards = 0;
 	state.port = SerialInit("\\\\.\\COM3");
-
-
-	time_t now = time(NULL);
-	struct tm* now_t = localtime(&now);
+	
+	//time_t now = time(NULL);
+	//struct tm* now_t = localtime(&now);
 	if (!SerialIsConnected(state.port))
 	{
 		printf("port is not connected");
