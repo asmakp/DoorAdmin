@@ -185,43 +185,43 @@ void Fake_test(SYSTEM_STATE* state)
 	char CardNo[20];
 	char str[] = "SCAN";
 	char list[25];
-	
-	printf("\nPlease scan card to enter\n");
-	printf("Press x to go back to admin mode\n");
-	GetInput("\nEnter your card number:", CardNo, 10);
-	strncpy(list, str, 25);
-	strncat(list, ",", 10);
-	strncat(list, CardNo, 30);
-	Sleep(10);
-	
-	SerialWritePort(state ->port, list, strlen(list));
-	
-	if ((strcmp(CardNo, "X") == 0) || (strcmp(CardNo, "x") == 0))
+	while (true)
 	{
-		return 0;
-	}
-	else
-	{
-		
-		for (int i = 0; i < state->NumberOfCards; i++)
-		{
-			CARD c = state->cardlist[i];
-			if (strcmp(c.name, CardNo) == 0 && (c.access==true))
-			{
-				printf("\nCURRENTLY THE LAMP IS GREEN\n");
-				return 0;
-			}
+		//printf("Please enter card to scan: \n");
+		//printf("Press x to go back to admin mode: \n");
+		GetInput("\nEnter your card number to scan \n OR \n Enter 'x' to return to main menu :", CardNo, 10);
+		strncpy(list, str, 25);
+		strncat(list, ",", 10);
+		strncat(list, CardNo, 30);
+		int exist = 0;
 
+		SerialWritePort(state->port, list, strlen(list));
+
+		if ((strcmp(CardNo, "X") == 0) || (strcmp(CardNo, "x") == 0))
+		{
+			return;
 		}
-		printf("\nCURRENTLY THE LAMP IS RED\n");
-		
-		
+		else
+		{
+			for (int i = 0; i < state->NumberOfCards; i++)
+			{
+				CARD c = state->cardlist[i];
+				if (strcmp(c.name, CardNo) == 0 && (c.access == true))
+				{
+					printf("\nCURRENTLY THE LAMP IS GREEN\n");
+					exist = 1;
+					break;
+				}
+
+			}
+			if (exist == 0) {
+				printf("\nCURRENTLY THE LAMP IS RED\n");
+			}
+		}
+
 	}
-	
-	printf("\nPress key to continue");
-	getch();
-	
 }
+		
 
 void RemoteOpenDoor(SYSTEM_STATE* state)
 {
@@ -277,8 +277,8 @@ void main()
 	state.NumberOfCards = 0;
 	state.port = SerialInit("\\\\.\\COM3");
 	
-	//time_t now = time(NULL);
-	//struct tm* now_t = localtime(&now);
+	
+	
 	if (!SerialIsConnected(state.port))
 	{
 		printf("port is not connected");
